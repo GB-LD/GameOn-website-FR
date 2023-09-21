@@ -14,6 +14,7 @@ const modalBtn = document.querySelectorAll(".modal-btn");
 const formData = document.querySelectorAll(".formData");
 const modalCloseBtn = document.querySelector("span.close");
 const form = document.querySelector("form");
+const modalValidSubmisison = document.querySelector(".modalSubmition");
 
 // Form DOM Elements
 const firstNameInput = document.getElementById("first");
@@ -43,31 +44,61 @@ function closeModal() {
   modalContent.classList.remove("open");
 }
 
+// submission confirmation
+function submissionIsValid() {
+  modalContent.classList.remove("open");
+  modalValidSubmisison.classList.add("open");
+  setTimeout(() => {
+    modalValidSubmisison.classList.remove("open");
+    modalbg.classList.remove("open");
+  }, 2500);
+}
+
 // check names input
 function checkName(name){
   const nameRegEx = new RegExp("[a-zA-Z]{2,}");
-  !nameRegEx.test(name.value) ? name.classList.add('error') : name.classList.remove('error');
-  setErrorFor(name, 'Veuillez entrer 2 caractères ou plus pour ce champ');
+  if (!nameRegEx.test(name.value)) {
+    name.classList.add('error');
+    setErrorFor(name, 'Veuillez entrer 2 caractères ou plus pour ce champ');
+      throw new Error()
+  } else {
+    name.classList.remove('error');
+  }
 }
 
 // check email
 function mailIsValid(email) {
   const mailRegEx = new RegExp('[a-z0-9._-]+@[a-z0-9._-]+\\.[a-z0-9._-]+');
-  !mailRegEx.test(email.value) ? email.classList.add('error') : email.classList.remove('error'); 
-  setErrorFor(email, 'Veuillez entrer un email valide');
+  if (!mailRegEx.test(email.value)) {
+    setErrorFor(email, 'Veuillez entrer un email valide');
+    email.classList.add('error');
+    throw new Error();
+  } else {
+    email.classList.remove('error');
+  } 
 }
 
 // check birthDate
 function birthDateIsValid(birthDate) {
-  birthDate.value === "" ? birthDate.classList.add('error') : birthDate.classList.remove('error');
-  setErrorFor(birthDate, 'Veuillez renseigner votre date de naissance');
+  if (birthDate.value === "") {
+    setErrorFor(birthDate, 'Veuillez renseigner votre date de naissance');
+    birthDate.classList.add('error');
+    throw new Error();
+  } else {
+    birthDate.classList.remove('error');
+  }
 }
 
 // check quantity
 function quantityIsValid(quantity) {
   const quantityRegEx = new RegExp('[0-9]+');
-  !quantityRegEx.test(quantity.value) ? quantity.classList.add('error') : quantity.classList.remove('error');
-  setErrorFor(quantity, 'Veuillez entrer un chiffre');
+  if (!quantityRegEx.test(quantity.value)) {
+    setErrorFor(quantity, 'Veuillez entrer un chiffre');
+    quantity.classList.add('error');
+    throw new Error();
+  } else {
+    quantity.classList.remove('error');
+  }
 }
 
 // check radio 
@@ -75,19 +106,25 @@ function checkRadio(nodeListRadio) {
   const radioList = Array.from(nodeListRadio);
   const radioContainer = nodeListRadio[0].parentElement;
   let formIsValid = radioList.some(input => input.checked === true);
-  !formIsValid ? radioContainer.classList.add('error') : radioContainer.classList.remove('error');
+  if (!formIsValid) {
+    radioContainer.classList.add('error')
+    throw new Error();
+  } else {
+    radioContainer.classList.remove('error')
+  }
 }
 
 // check cgv
 function checkCgv(input){
   const inputParent = input.parentElement;
-  !input.checked ? inputParent.classList.add('error') : inputParent.classList.remove('error');;
+  if (!input.checked) {
+    inputParent.classList.add('error');
+    throw new Error();
+  } else {
+    inputParent.classList.remove('error');
+  }
 }
 
-// // check newletter
-// function checkNewsLetter(){
-//   console.log(newsletterInput.checked);
-// }
 
 function setErrorFor(input, message) {
   const inputParent = input.parentElement;
@@ -99,11 +136,18 @@ function setErrorFor(input, message) {
 form.addEventListener("submit", event => {
     event.preventDefault();
 
-    checkName(firstNameInput);
-    checkName(lastNameInput);
-    mailIsValid(emailInput);
-    birthDateIsValid(birthDateInput);
-    quantityIsValid(quantityInput);
-    checkRadio(radioInput);
-    checkCgv(cgvInput);
+      try {
+        checkName(firstNameInput);
+        checkName(lastNameInput);
+        mailIsValid(emailInput);
+        birthDateIsValid(birthDateInput);
+        quantityIsValid(quantityInput);
+        checkRadio(radioInput);
+        checkCgv(cgvInput);
+
+        submissionIsValid();
+
+      } catch (error) {
+        console.log(error);
+      }
 });
